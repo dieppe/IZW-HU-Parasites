@@ -1,15 +1,12 @@
 import sys
 from copy import deepcopy
+import datetime
+from code.utilities.Helpers import print_time
 
 from Bio import Phylo
 from termcolor import colored
 
-# input arguments
-args = sys.argv
-
-# values from  input:
-subtree_ott = sys.argv[1]
-subtree_name = sys.argv[2]
+OTL_PATH = "./data/opentree9.1_tree/labelled_supertree/labelled_supertree.tre"
 
 # examples:
 # subtree_otts+name = [['ott304358', 'Eukaryota'], ['ott361838', 'Chloroplastida'],
@@ -17,53 +14,29 @@ subtree_name = sys.argv[2]
 #         ['ott229562', 'Tetrapoda'], ['ott244265', 'Mammalia'], ['ott913935', 'Primates'],
 #         ['ott770311', 'Hominidae'], ['ott352914', 'Fungi'], ['ott844192', 'Bacteria'],
 #         ['ott996421', 'Archaea']]
-index = 0
-nr_internal_nodes = 0
-nr_leaf_nodes = 0
 
+# WE DON'T KEEP THE INDEXES OF THE NODES INSIDE THE TREE CONTRARY TO PREVIOUS
+# VERSION
 def main():
-    path_tree = "./data/opentree9.1_tree/labelled_supertree/labelled_supertree.tre"
+    try:
+        _, subtree_ott, subtree_name = sys.argv
+        CURRENT_TIME = datetime.datetime.now().replace(microsecond=0)
+        print(colored("BUILDING " + subtree_name + " SUBTREE", "green"))
+        print(colored("- Reading OTL", "green"))
+        tree = Phylo.read(OTL_PATH, 'newick')
+        CURRENT_TIME = print_time(CURRENT_TIME)
 
-    print(colored("---------------- read tree ----------------", "green"))
-    tree = Phylo.read(path_tree, 'newick')
-    
-    print(colored("---------------- find subtrees ----------------", "green"))
-    find_subtree(tree.clade)
-    return
+        print(colored("- Finding subtree with " + subtree_ott, "green"))
+        subtree = next(tree.find_clades(subtree_ott, order='level'))
+        CURRENT_TIME = print_time(CURRENT_TIME)
+        # DEBUG printing
+        # print('Subtree', subtree_name, 'has', subtree.count_terminals(), 'leaves and', len(subtree.get_nonterminals()), 'internal nodes')
 
-def find_subtree(subtree):
-    global index
-    global nr_internal_nodes
-    global nr_leaf_nodes
+        subtree_path = './data/subtree/' + subtree_name + '.tre'
+        print(colored('- Saving subtree to ' + subtree_path))
+        Phylo.write(subtree, subtree_path, 'newick')
+        print_time(CURRENT_TIME)
+    except:
+        print(colored("Unexpected error: " + sys.exc_info()[0], "red"))
 
-    if not subtree.is_terminal():
-        if subtree.name == subtree_ott:
-            new_subtree = deepcopy(subtree)
-            new_subtree = prepare_subtree(new_subtree)
-            index = 0
-            subtree_path = './data/subtree/' + subtree_name + '.tre'
-            print("save tree at", subtree_path)
-            Phylo.write(new_subtree, subtree_path, 'newick')
-            print(subtree_name, 'has', nr_internal_nodes, 'internal nodes and', nr_leaf_nodes, 'leaf_nodes')
-            nr_internal_nodes = 0
-            nr_leaf_nodes = 0
-        for clade in subtree.clades:
-            find_subtree(clade)
-    return
-
-def prepare_subtree(subtree):
-    global index
-    global nr_internal_nodes
-    global nr_leaf_nodes
-    # For the quicker finding of the element in the nodelist of the accociated node.
-    subtree.name = subtree.name + "$" + str(index)
-    index += 1
-    if subtree.is_terminal():
-        nr_leaf_nodes += 1
-    else:
-        nr_internal_nodes += 1
-        for clade in subtree.clades:
-            clade = prepare_subtree(clade)
-    return subtree
-    
 main()
