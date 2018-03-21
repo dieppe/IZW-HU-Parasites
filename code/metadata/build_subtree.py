@@ -1,4 +1,5 @@
 import sys
+import traceback
 from copy import deepcopy
 import datetime
 from code.utilities.Helpers import print_time
@@ -37,6 +38,7 @@ def main():
         Phylo.write(subtree, subtree_path, 'newick')
         print_time(CURRENT_TIME)
     except:
-        print(colored("Unexpected error: " + sys.exc_info()[0], "red"))
+        print(colored("Unexpected error: ", "red"))
+        traceback.print_exc()
 
 main()
