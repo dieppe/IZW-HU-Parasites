@@ -67,8 +67,8 @@ def main():
         print(nodelist[0])
 
         csv_path = './data/nodelist/' + subtree_name + '.csv'
-        print(colored("Writing csv file to " + csv_path, "green"))
-        with open(csv_path, 'a') as nodelist_file:
+        print(colored("- Writing csv file to " + csv_path, "green"))
+        with open(csv_path, 'w') as nodelist_file:
             writer = csv.writer(nodelist_file)
             writer.writerows(nodelist)
         CURRENT_TIME = print_time(CURRENT_TIME)
