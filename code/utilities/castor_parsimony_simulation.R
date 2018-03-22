@@ -2,34 +2,29 @@ library(ape)
 library(Rcpp)
 library(castor)
 
+print("READING TREE")
 # -------- Tree: --------
 path_tree <- "data/subtree/Eukaryota.tre"
 # read.tree(file = "", text = NULL, tree.names = NULL, skip = 0, comment.char = "", keep.multi = FALSE, ...)
 tree <- read.tree(path_tree)
+print("TREE READ")
 
+print("READING TAGGED TREE")
 # -------- Tagged tree: --------
 path_tagged_tree <- "code/bufferfiles/tagged_tree.tre"
 tagged_tree <- read.tree(path_tagged_tree)
 
+print("TAGGED TREE READ")
 # ---- get the tagged tips of the tree ----
- state_ids <- tree$tip.label
-states <- tagged_tree$tip.label
-# print("tip states:")
-# print(states)
-# print(state_ids)
+state_ids <- tree$tip.label
 
 number_of_tips <- length(state_ids)
 internal_nodes <- tree$node.label
 
-# ---- map them to numbers (NA for unknown states) ----
-# map_to_state_space(raw_states, fill_gaps=FALSE, sort_order="natural", include_state_values=FALSE)
-mapping <- map_to_state_space(states, include_state_values = TRUE)
-tip_states <- mapping$mapped_states
-print("State names:")
-print(mapping$state_names)
-x <- replace(tip_states, tip_states==3, NA)
-print("run parsimony algorithm...")
+tip_states <- tagged_tree$tip.label
+
+mapped_tip_states <- as.integer(tip_states)
 
 # ---- run parsimony algorithm ----
 # Reconstruct ancestral discrete states of nodes and predict unknown (hidden) states of tips on a tree using maximum parsimony. Transition costs can vary between transitions, and can optionally be weighted by edge length.
-likelihoods = hsp_max_parsimony(tree, tip_states, Nstates=3, transition_costs="all_equal", edge_exponent=0.0, weight_by_scenarios=TRUE, check_input=TRUE)
+likelihoods = hsp_max_parsimony(tree, mapped_tip_states, Nstates=2, transition_costs="all_equal", edge_exponent=0.0, weight_by_scenarios=TRUE, check_input=TRUE)

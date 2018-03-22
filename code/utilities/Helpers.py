@@ -1,9 +1,14 @@
 """some simple helper functions"""
 
 import datetime
+import pandas as pd
 
 from termcolor import colored
 
+def read_nodelist_as_df(path):
+    with open(path, 'r') as csv_file:
+        df = pd.read_csv(csv_file, header=None, names=['ott', 'originaltag', 'finaltag', 'depth', 'heights', 'nr_children'], keep_default_na=False)
+    return df.set_index(['ott'], drop=False)
 # TAGS = ["FL", "P"]
 TAGS = [0, 1]
 

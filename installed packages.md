@@ -25,3 +25,4 @@ sudo pip3 install ...
 * biopython
 * rpy2
 * termcolor
+* pandas
