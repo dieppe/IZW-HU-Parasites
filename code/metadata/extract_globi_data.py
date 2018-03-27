@@ -1,100 +1,114 @@
-# This code runs for about 10 minutes.
-
 import csv
-import itertools
 from time import gmtime, strftime
 
-no_ott_source = 0
-no_ott_target = 0
+
+INTERACTIONS_FILE_PATH = './data/GloBI_Dump/interactions.tsv'
+FREELIVING_OUTPUT_PATH = './data/interaction_data/freelivings.csv'
+PARASITE_OUTPUT_PATH = './data/interaction_data/parasites.csv'
+
+PARASITE_SOURCES = [
+    'parasiteOf',
+    'pathogenOf',
+]
+PARASITE_TARGETS = [
+    'hasParasite',
+    'hasPathogen',
+]
+FREELIVING_SOURCES = [
+    'preysOn',
+    'eats',
+    'flowersVisitedBy',
+    'hasPathogen',
+    'pollinatedBy',
+    'hasParasite',
+    'hostOf',
+]
+FREELIVING_TARGETS = [
+    'preyedUponBy',
+    'parasiteOf',
+    'visitsFlowersOf',
+    'pathogenOf',
+    'hasHost',
+]
+
 
 def main():
-    global no_ott_source
-    global no_ott_target
-    print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    print(strftime('%Y-%m-%d %H:%M:%S', gmtime()))
     print('-------------------')
 
-    filepath = "./data/GloBI_Dump/interactions.tsv"
-    parasite_source = ["parasiteOf", "pathogenOf"]
-    parasite_target = ["hasParasite", "hasPathogen"]
-    freeliving_source = ["preysOn", "eats", "flowersVisitedBy", "hasPathogen", "pollinatedBy", "hasParasite", "hostOf"]
-    freeliving_target = ["preyedUponBy", "parasiteOf", "visitsFlowersOf", "pathogenOf", "hasHost"]
-    #           [["ott_id","taxon_name"]]
-    freelivings = []
-    parasites = []
-    
-    freelivings_path = './data/interaction_data/freelivings.csv' 
-    parasites_path = './data/interaction_data/parasites.csv' 
+    #           [['ott_id','taxon_name']]
+    freelivings = {}
+    parasites = {}
 
     index = 0
 
-    with open(filepath, "r", encoding="utf8") as tsv_file:
+    # We favour parasites over freelivings
+    # Given the source / target tests, we can have a parasite that would be
+    # tagged as a freeliving. Once a parasite has been identified, it is
+    # clear it can not be a free living.
+    def add_parasite(ott, name, interaction):
+        freelivings.pop(ott, None)
+        parasites[ott] = [ott, name, interaction]
+
+    def add_freeliving(ott, name, interaction):
+        if (ott not in parasites):
+            freelivings[ott] = [ott, name, interaction]
+
+    with open(INTERACTIONS_FILE_PATH, 'r', encoding='utf8') as tsv_file:
         reader = csv.reader(tsv_file, delimiter='\t')
         for row in reader:
             index += 1
             interaction = row[10]
             # eliminate useless interactions
-            # -------------------------------- source? --------------------------------
-            if any(interaction in source for source in (freeliving_source, parasite_source)):
-                if row[0] == '' or not 'OTT' in row[0]:
-                    print('no ott available')
-                else:
+            if any(
+                interaction in source
+                    for source in (FREELIVING_SOURCES, PARASITE_SOURCES)
+            ):
+                if row[0] != '' and 'OTT' in row[0]:
                     ott = row[0].split(':')
                     name = row[1]
-                    # normal case (otherwise no ott available, but maybe another one):
+                    # normal case (otherwise no ott available,
+                    # but maybe another one):
                     if len(ott) >= 2:
-                        if interaction in freeliving_source:
-                            freelivings.append([ott[1], name, interaction])
-                        elif interaction in parasite_source:
-                            parasites.append([ott[1], name, interaction])
-            # -------------------------------- target? --------------------------------
-            if any(interaction in target for target in (freeliving_target, parasite_target)):
-                if row[11] == '' or not 'OTT' in  row[11]:
-                    print('no ott available')
-                else:
+                        if interaction in FREELIVING_SOURCES:
+                            add_freeliving(ott[1], name, interaction)
+                        elif interaction in PARASITE_SOURCES:
+                            add_parasite(ott[1], name, interaction)
+            if any(
+                interaction in target
+                    for target in (FREELIVING_TARGETS, PARASITE_TARGETS)
+            ):
+                if row[11] != '' and 'OTT' in row[11]:
                     ott = row[11].split(':')
                     name = row[12]
-                    # normal case (otherwise no ott available, but maybe another one):
+                    # normal case (otherwise no ott available,
+                    # but maybe another one):
                     if len(ott) >= 2:
-                        if interaction in freeliving_target:
-                            freelivings.append([ott[1], name, interaction])
-                        elif interaction in parasite_target:
-                            parasites.append([ott[1], name, interaction])
+                        if interaction in FREELIVING_TARGETS:
+                            add_freeliving(ott[1], name, interaction)
+                        elif interaction in PARASITE_TARGETS:
+                            add_parasite(ott[1], name, interaction)
 
     print('-------------------')
-    print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    print(strftime('%Y-%m-%d %H:%M:%S', gmtime()))
     print('-------------------')
     print('tsv_len =', index)
-    print('no ott source:', no_ott_source)
-    print('no ott target:', no_ott_target)
 
-    freelivings = disambiguate_list(freelivings, 'freelivings')
-    parasites = disambiguate_list(parasites, 'parasites')
+    print('Number of freelivings:', len(freelivings.items()))
+    print('Number of parasites:', len(parasites.items()))
 
     # -------------------------------------------------
-    with open(freelivings_path, "w") as f:
+    with open(FREELIVING_OUTPUT_PATH, 'w') as f:
         writer = csv.writer(f)
-        writer.writerows(freelivings)
+        writer.writerows(freelivings.items())
 
-    with open(parasites_path, "w") as f:
+    with open(PARASITE_OUTPUT_PATH, 'w') as f:
         writer = csv.writer(f)
-        writer.writerows(parasites)
+        writer.writerows(parasites.items())
     # -------------------------------------------------
     print('-------------------')
-    print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+    print(strftime('%Y-%m-%d %H:%M:%S', gmtime()))
     return
 
-def is_int(value):
-    try: 
-        int(value)
-        return True
-    except ValueError:
-        return False
-
-def disambiguate_list(current_list, name):
-    print('number of', name, ':', len(current_list))
-    current_list.sort()
-    current_list = list(current_list for current_list,_ in itertools.groupby(current_list))
-    print('number of', name, ':', len(current_list), '(distinct)')
-    return current_list
 
 main()
