@@ -79,26 +79,27 @@ def update_nodelist_with_castor_results(nodelist):
     # nodes are indexed in the tree, i.e. the rows 1,..,Ntips store the
     # probabilities for tips, while rows (Ntips+1),..,(Ntips+Nnodes) store the
     # probabilities for nodes.
+    # ---
+    # likelihoods is a RPy2 Matrix which can be accessed as follow:
+    # likelihoods[row * (col+1)]
+    # (so i in [0..nrow] is first column, i in [nrow+1..2*nrow] is second, ...)
     likelihoods = robjects.globalenv['likelihoods'][0]
 
     leaf_nodes = robjects.globalenv['state_ids']
-    number_of_tips = robjects.globalenv['number_of_tips']
     internal_nodes = robjects.globalenv['internal_nodes']
 
-    # TODO understand this bit
-    l = int(len(likelihoods) / 3)
-    j = 0
-    k = 0
-    for i in range(2 * l, 3 * l):
-        if j < number_of_tips[0]:
-            leaf = leaf_nodes[j]
-            if nodelist.at[leaf, 'finaltag'] == '':
-                nodelist.at[leaf, 'finaltag'] = likelihoods[i]
-            j += 1
-        else:
-            node = internal_nodes[k]
-            nodelist.at[node, 'finaltag'] = likelihoods[i]
-            k += 1
+    number_of_states = likelihoods.ncol
+    number_of_leaves = len(leaf_nodes)
+
+    # We select the second column - parasites probability
+    for index, leaf_ott in enumerate(leaf_nodes):
+        likelihood_index = index * number_of_states
+        if nodelist.at[leaf_ott, 'finaltag'] == '':
+            nodelist.at[leaf_ott, 'finaltag'] = likelihoods[likelihood_index]
+
+    for index, internal_ott in enumerate(internal_nodes):
+        likelihood_index = (index + number_of_leaves) * number_of_states
+        nodelist.at[internal_ott, 'finaltag'] = likelihoods[likelihood_index]
     return
 
 
