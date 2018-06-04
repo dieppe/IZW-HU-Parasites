@@ -1,6 +1,6 @@
 library('modules')
 
-utils <- import('../utils')
+utils <- import('../../utils')
 utils$install_packages('readr')
 
 readr <- import_package('readr')

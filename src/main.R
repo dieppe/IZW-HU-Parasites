@@ -14,14 +14,12 @@ tryCatch(
 
 getwd()
 
-utils <- import('../utils')
-CONFIG <- import('./config')
-tree_utils <- import('./tree-utils')
-interaction_utils <- import('./interaction-utils')
+utils <- import('./utils')
+CONFIG <- import('./reconstruction/config')
+tree_utils <- import('./reconstruction/extract_data/tree-utils')
+interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
 
-utils$install_packages('castor')
-
-castor <- import_package('castor')
+evaluate_utils <- import('./reconstruction/evaluate/run_castor')
 
 tree <- tree_utils$extract_tree_from_path(
   CONFIG$full_tree_path,
@@ -34,4 +32,5 @@ interactions <- interaction_utils$extract_interactions_from_path(
 
 mapped_states <- tree_utils$get_parsimony_tip_states(tree, interactions$parasites, interactions$freelivings)
 
-result <- castor$hsp_max_parsimony(tree, mapped_states, Nstates=2, transition_costs="all_equal", edge_exponent=0.0, weight_by_scenarios=TRUE, check_input=TRUE)
+complete_run_result <- evaluate_utils$run_exact(tree, mapped_states)
+evaluation_results <- evaluate_utils$evaluate(tree, mapped_states)

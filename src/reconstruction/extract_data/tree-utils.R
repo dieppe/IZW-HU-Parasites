@@ -7,7 +7,7 @@
 
 library('modules')
 
-utils = import('../utils')
+utils = import('../../utils')
 utils$install_packages('ape')
 
 ape = import_package('ape')
