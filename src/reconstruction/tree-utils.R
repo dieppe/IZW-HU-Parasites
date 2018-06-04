@@ -19,6 +19,11 @@ extract_tree_from_path <- function (otl_tree_path, root_ott) {
   return(tree)
 }
 
-tag_tree_with_interactions <- function (tree, interactions) {
+get_parsimony_tip_states <- function (tree, parasites, freelivings) {
   print('TAG TREE')
+  labels <- tree$tip.label
+  labels[labels %in% freelivings$ott] <- 1
+  labels[labels %in% parasites$ott] <- 2
+  labels[labels != 1 & labels != 2] <- NA
+  as.integer(labels)
 }

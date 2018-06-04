@@ -33,3 +33,7 @@ results/
 *.synctex.gz
 
 !.gitkeep
+
+src/reconstruction/\.RData
+
+src/reconstruction/\.Rhistory

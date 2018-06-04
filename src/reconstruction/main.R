@@ -32,4 +32,6 @@ interactions <- interaction_utils$extract_interactions_from_path(
   CONFIG$interaction_tree_path
 )
 
-taggedTree <- tree_utils$tag_tree_with_interactions(tree, interactions)
+mapped_states <- tree_utils$get_parsimony_tip_states(tree, interactions$parasites, interactions$freelivings)
+
+result <- castor$hsp_max_parsimony(tree, mapped_states, Nstates=2, transition_costs="all_equal", edge_exponent=0.0, weight_by_scenarios=TRUE, check_input=TRUE)
