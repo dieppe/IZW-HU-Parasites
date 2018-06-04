@@ -35,7 +35,7 @@ mapped_states <- tree_utils$get_parsimony_tip_states(tree, interactions$parasite
 complete_run_result <- evaluate_utils$run_exact(tree, mapped_states)
 
 evaluation_results <- lapply(
-  seq(1:100),
+  seq(1:10),
   function (pass) {
     return(evaluate_utils$evaluate(tree, mapped_states))
   }
