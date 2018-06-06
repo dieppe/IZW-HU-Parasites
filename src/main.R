@@ -15,28 +15,59 @@ tryCatch(
 getwd()
 
 utils <- import('./utils')
-CONFIG <- import('./reconstruction/config')
+CONFIG <- import('./config')
+
 tree_utils <- import('./reconstruction/extract_data/tree-utils')
 interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
-
-evaluate_utils <- import('./reconstruction/evaluate/run_castor')
-
-tree <- tree_utils$extract_tree_from_path(
-  CONFIG$full_tree_path,
-  CONFIG$root_ott
-)
+evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
 
 interactions <- interaction_utils$extract_interactions_from_path(
   CONFIG$interaction_tree_path
 )
 
-mapped_states <- tree_utils$get_parsimony_tip_states(tree, interactions$parasites, interactions$freelivings)
+tree <- tree_utils$read_tree_from_path(CONFIG$full_tree_path)
+clades <- tree_utils$extract_clades(tree, CONFIG$clade_otts)
 
-complete_run_result <- evaluate_utils$run_exact(tree, mapped_states)
+percentage_to_recall_sequence <- seq(
+  from=CONFIG$lower_percentage_to_recall, 
+  to=CONFIG$upper_percentage_to_recall, 
+  length.out=CONFIG$number_of_evaluations
+)
 
 evaluation_results <- lapply(
-  seq(1:10),
-  function (pass) {
-    return(evaluate_utils$evaluate(tree, mapped_states))
+  seq_along(clades),
+  function (i) {
+    # This is not pretty, but it seems to be an accepted way of accessing
+    # names in `lapply`
+    clade_name <- names(clades)[i]
+    clade <- clades[[clade_name]]
+
+    print(paste('EVALUATION FOR CLADE', clade_name))
+
+    mapped_states <- tree_utils$build_tip_states_for_clade(
+      clade,
+      interactions$parasites,
+      interactions$freelivings
+    )
+    
+    results <- sapply(
+      percentage_to_recall_sequence,
+      function (percentage_to_recall) {
+        evaluation_result <- evaluation_utils$evaluate(
+          clade,
+          mapped_states, 
+          percentage_to_recall, 
+          CONFIG$number_of_sampling_per_recall
+        )
+        print(evaluation_result)
+        return(evaluation_result)
+      }
+    )
+    
+    dimnames(results)[[2]] <- percentage_to_recall_sequence
+
+    return(results)
   }
 )
+names(evaluation_results) <- names(clades)
+

@@ -7,23 +7,35 @@
 
 library('modules')
 
-utils = import('../../utils')
+utils <- import('../../utils')
 utils$install_packages('ape')
 
-ape = import_package('ape')
+ape <- import_package('ape')
 
-extract_tree_from_path <- function (otl_tree_path, root_ott) {
+read_tree_from_path <- function (otl_tree_path) {
   print(paste('LOAD TREE FROM', otl_tree_path))
   tree <- ape::read.tree(otl_tree_path)
-  tree <- ape::extract.clade(tree, node = root_ott)
   return(tree)
 }
 
-get_parsimony_tip_states <- function (tree, parasites, freelivings) {
-  print('TAG TREE')
-  labels <- tree$tip.label
+extract_clades <- function (tree, clade_otts) {
+  clades <- lapply(
+    clade_otts,
+    function (clade_ott) {
+      print(paste('EXTRACTING CLADE', clade_ott))
+      clade <- ape::extract.clade(tree, node = clade_ott)
+      return(clade)
+    }
+  )
+  names(clades) <- names(clade_otts)
+  return(clades)
+}
+
+build_tip_states_for_clade <- function (clade, parasites, freelivings) {
+  print('BUILDING P|FL STATES FOR CLADE')
+  labels <- clade$tip.label
   labels[labels %in% freelivings$ott] <- 1
   labels[labels %in% parasites$ott] <- 2
   labels[labels != 1 & labels != 2] <- NA
-  as.integer(labels)
+  return(as.integer(labels))
 }
