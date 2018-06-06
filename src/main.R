@@ -20,6 +20,7 @@ CONFIG <- import('./config')
 tree_utils <- import('./reconstruction/extract_data/tree-utils')
 interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
 evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
+plot_utils <- import('./reconstruction/reporting/plot-utils')
 
 interactions <- interaction_utils$extract_interactions_from_path(
   CONFIG$interaction_tree_path
@@ -71,3 +72,4 @@ evaluation_results <- lapply(
 )
 names(evaluation_results) <- names(clades)
 
+plot_utils$plot_results(evaluation_results, CONFIG$stats)
