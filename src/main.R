@@ -9,7 +9,8 @@ tryCatch(
     # TODO if rstudioapi is not present, try the other way...
     rstudioapi = import_package('rstudioapi')
     setwd(dirname(rstudioapi$getActiveDocumentContext()$path))
-  }
+  },
+  error = function (cond) { print("Not working in R Studio, check the working directory") }
 )
 
 getwd()

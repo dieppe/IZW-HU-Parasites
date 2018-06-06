@@ -1,5 +1,7 @@
 library('modules')
 
+utils <- import('../../utils')
+utils$install_packages('castor')
 castor <- import_package('castor')
 
 run_exact <- function (tree, mapped_states) {
@@ -64,7 +66,7 @@ analyse <- function (clade, castor_result, mapped_states, percentage_to_recall) 
     (known_states == 1 & known_tip_liks > 0.5) |
     (known_states == 2 & known_tip_liks < 0.5)
   number_of_correct_states <- sum(correct_states, na.rm = TRUE)
-  nnumber_of_know_states <- length(known_states)
+  number_of_know_states <- length(known_states)
   number_of_left_out <- as.integer(
       (as.double(percentage_to_recall) / 100) * number_of_know_states
   )
