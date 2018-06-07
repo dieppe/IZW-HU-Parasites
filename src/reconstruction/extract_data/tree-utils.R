@@ -8,13 +8,13 @@
 library('modules')
 
 utils <- import('../../utils')
-utils$install_packages('ape')
+utils$install_packages('castor')
 
-ape <- import_package('ape')
+castor <- import_package('castor')
 
 read_tree_from_path <- function (otl_tree_path) {
   print(paste('LOAD TREE FROM', otl_tree_path))
-  tree <- ape::read.tree(otl_tree_path)
+  tree <- castor$read_tree(file = otl_tree_path)
   return(tree)
 }
 
@@ -23,8 +23,8 @@ extract_clades <- function (tree, clade_otts) {
     clade_otts,
     function (clade_ott) {
       print(paste('EXTRACTING CLADE', clade_ott))
-      clade <- ape::extract.clade(tree, node = clade_ott)
-      return(clade)
+      clade <- castor$get_subtree_at_node(tree, node = clade_ott)
+      return(clade$subtree)
     }
   )
   names(clades) <- names(clade_otts)
