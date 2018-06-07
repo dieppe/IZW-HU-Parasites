@@ -50,7 +50,7 @@ evaluate <- function (clade, mapped_states, percentage_to_recall, how_many_times
       castor_result <- run_exact(clade, sampled_states)
       analyse(clade, castor_result, mapped_states, percentage_to_recall)
     },
-    mc.cores = parallel$detectCores()
+    mc.cores = parallel$detectCores() / 2
   )
   evaluation_results <- unlist(evaluation_results)
   names(evaluation_results) <- 1:how_many_times
