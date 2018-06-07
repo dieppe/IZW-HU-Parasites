@@ -52,6 +52,7 @@ evaluate <- function (clade, mapped_states, percentage_to_recall, how_many_times
     },
     mc.cores = parallel$detectCores()
   )
+  evaluation_results <- unlist(evaluation_results)
   names(evaluation_results) <- 1:how_many_times
   
   return(evaluation_results)
