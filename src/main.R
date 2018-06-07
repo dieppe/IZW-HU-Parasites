@@ -74,3 +74,5 @@ evaluation_results <- lapply(
 names(evaluation_results) <- names(clades)
 
 plot_utils$plot_results(evaluation_results, CONFIG$stats)
+
+save.image()
