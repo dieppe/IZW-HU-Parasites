@@ -3,6 +3,7 @@ library('modules')
 utils <- import('../../utils')
 utils$install_packages('castor')
 castor <- import_package('castor')
+parallel <- import_package('parallel')
 
 run_exact <- function (tree, mapped_states) {
   result <- castor$hsp_max_parsimony(
@@ -31,8 +32,8 @@ evaluate <- function (clade, mapped_states, percentage_to_recall, how_many_times
   
   print(sum(!is.na(mapped_states), na.rm = TRUE))
   
-  evaluation_results <- sapply(
-    1:how_many_times, 
+  evaluation_results <- parallel$mclapply(
+    1:how_many_times,
     function (i) {
       print(paste0(
         'SAMPLING #', 
@@ -48,7 +49,8 @@ evaluate <- function (clade, mapped_states, percentage_to_recall, how_many_times
       sampled_states[!is.na(sampled_states)][sampled_indices] <- NA
       castor_result <- run_exact(clade, sampled_states)
       analyse(clade, castor_result, mapped_states, percentage_to_recall)
-    }
+    },
+    mc.cores = parallel$detectCores()
   )
   names(evaluation_results) <- 1:how_many_times
   
