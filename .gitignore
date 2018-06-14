@@ -39,3 +39,5 @@ src/reconstruction/\.RData
 src/reconstruction/\.Rhistory
 
 src/config\.R
+
+output/

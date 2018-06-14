@@ -70,7 +70,8 @@ plot_utils$save_plot(
 
 save.image(
   file = paste0(
-    '.RData_from=',
+    CONFIG$output_path,
+    '/.RData_from=',
     CONFIG$evaluations$from_percentage_dropped,
     '&to=',
     CONFIG$evaluations$to_percentage_dropped,

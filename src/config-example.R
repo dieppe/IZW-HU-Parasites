@@ -6,6 +6,8 @@ full_tree_path <- normalizePath('../data/opentree9.1_tree/labelled_supertree/lab
 
 interaction_tree_path <- normalizePath('../data/GloBI_Dump/interactions.tsv')
 
+output_path <- normalizePath('../output/')
+
 clade_otts <- c(
   Eukaryota = 'ott304358',
   Nematoda = 'ott395057'
@@ -21,7 +23,7 @@ evaluations <- list(
 stats <- c(min = min, max = max, mean = mean, median = median, sd = sd)
 
 plots <- list(
-  output_path = normalizePath('../output/images'),
+  output_path = normalizePath(output_path, '/images'),
   extension = '.png',
   width = 12,
   height = 12,
