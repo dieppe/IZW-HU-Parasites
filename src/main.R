@@ -99,4 +99,15 @@ plots <- lapply(
   }
 )
 
-save.image()
+save.image(
+  file = paste0(
+    '.RData_from=',
+    CONFIG$evaluations$from_percentage_dropped,
+    '&to=',
+    CONFIG$evaluations$to_percentage_dropped,
+    '&steps=',
+    CONFIG$evaluations$number_of_steps,
+    '&times=',
+    CONFIG$evaluations$number_of_sampling_per_step
+  )
+)
