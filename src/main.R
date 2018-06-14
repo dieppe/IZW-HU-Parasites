@@ -30,59 +30,28 @@ interactions <- interaction_utils$extract_interactions_from_path(
 
 tree <- tree_utils$read_tree_from_path(CONFIG$full_tree_path)
 clades <- tree_utils$extract_clades(tree, CONFIG$clade_otts)
+tip_states_by_clade <- tree_utils$build_tip_states_for_clade(
+  clades,
+  interactions$parasites,
+  interactions$freelivings
+)
 
-percentage_to_recall_sequence <- seq(
-  from=CONFIG$evaluations$from_percentage_dropped, 
-  to=CONFIG$evaluations$to_percentage_dropped, 
+drops <- seq(
+  from=CONFIG$evaluations$from_percentage_dropped,  
+  to=CONFIG$evaluations$to_percentage_dropped,  
   length.out=CONFIG$evaluations$number_of_steps
 )
 
-evaluation_results <- lapply(
-  seq_along(clades),
-  function (i) {
-    # This is not pretty, but it seems to be an accepted way of accessing
-    # names in `lapply`
-    clade_name <- names(clades)[i]
-    clade <- clades[[clade_name]]
-
-    print(paste('EVALUATION FOR CLADE', clade_name))
-
-    mapped_states <- tree_utils$build_tip_states_for_clade(
-      clade,
-      interactions$parasites,
-      interactions$freelivings
-    )
-    
-    results <- sapply(
-      percentage_to_recall_sequence,
-      function (percentage_to_recall) {
-        evaluation_result <- evaluation_utils$evaluate(
-          clade,
-          mapped_states, 
-          percentage_to_recall, 
-          CONFIG$evaluations$number_of_sampling_per_step
-        )
-        print(evaluation_result)
-        return(evaluation_result)
-      }
-    )
-    
-    dimnames(results)[[2]] <- percentage_to_recall_sequence
-
-    return(results)
-  }
+evaluation_results <- evaluation_utils$evaluate(
+  clades,
+  tip_states_by_clade,
+  drops,
+  CONFIG$evaluations$number_of_sampling_per_step
 )
-names(evaluation_results) <- names(clades)
 
-stat_results <- lapply(
-  evaluation_results,
-  function (evaluation_results_for_clade) {
-    stat_results_for_clade <- stat_utils$run_stats(
-      evaluation_results_for_clade, 
-      CONFIG$stats
-    )
-    return(stat_results_for_clade)
-  }
+stat_results <- stat_utils$run_stats(
+  evaluation_results, 
+  CONFIG$stats
 )
 
 plots <- plot_utils$plot_results(

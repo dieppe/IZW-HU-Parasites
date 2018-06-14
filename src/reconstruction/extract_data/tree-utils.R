@@ -18,24 +18,25 @@ read_tree_from_path <- function (otl_tree_path) {
   return(tree)
 }
 
-extract_clades <- function (tree, clade_otts) {
-  clades <- lapply(
-    clade_otts,
-    function (clade_ott) {
-      print(paste('EXTRACTING CLADE', clade_ott))
-      clade <- castor$get_subtree_at_node(tree, node = clade_ott)
-      return(clade$subtree)
-    }
-  )
-  names(clades) <- names(clade_otts)
-  return(clades)
-}
+extract_clades <- Vectorize(
+  function (tree, clade_ott) {
+    print(paste('EXTRACTING CLADE', clade_ott))
+    clade <- castor$get_subtree_at_node(tree, node = clade_ott)
+    return(clade$subtree)
+  },
+  vectorize.args = c('clade_ott'),
+  SIMPLIFY = FALSE
+)
 
-build_tip_states_for_clade <- function (clade, parasites, freelivings) {
-  print('BUILDING P|FL STATES FOR CLADE')
-  labels <- clade$tip.label
-  labels[labels %in% freelivings$ott] <- 1
-  labels[labels %in% parasites$ott] <- 2
-  labels[labels != 1 & labels != 2] <- NA
-  return(as.integer(labels))
-}
+build_tip_states_for_clade <- Vectorize(
+  function (clade, parasites, freelivings) {
+    print('BUILDING P|FL STATES FOR CLADE')
+    labels <- clade$tip.label
+    labels[labels %in% freelivings$ott] <- 1
+    labels[labels %in% parasites$ott] <- 2
+    labels[labels != 1 & labels != 2] <- NA
+    return(as.integer(labels))
+  },
+  vectorize.args = c('clade'),
+  SIMPLIFY = FALSE
+)
