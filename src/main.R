@@ -85,18 +85,17 @@ stat_results <- lapply(
   }
 )
 
-# sapply f*cks up the ggplot structure
-plots <- lapply(
-  names(evaluation_results),
-  function (clade_name) {
-    evaluation_results_for_clade <- evaluation_results[[clade_name]]
-    stat_results_for_clade <- stat_results[[clade_name]]
-    plot <- plot_utils$plot_results(
-      clade_name,
-      evaluation_results_for_clade,
-      stat_results_for_clade
-    )
-  }
+plots <- plot_utils$plot_results(
+  names(CONFIG$clade_otts), 
+  evaluation_results, 
+  stat_results
+)
+
+plot_utils$save_plot(
+  plots,
+  names(plots),
+  CONFIG$evaluations,
+  CONFIG$plots
 )
 
 save.image(

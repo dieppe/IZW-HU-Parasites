@@ -20,3 +20,11 @@ evaluations <- list(
 
 stats <- c(min = min, max = max, mean = mean, median = median, sd = sd)
 
+plots <- list(
+  output_path = normalizePath('../output/images'),
+  extension = '.png',
+  width = 12,
+  height = 12,
+  units = 'cm',
+  res = 320
+)
