@@ -21,6 +21,7 @@ CONFIG <- import('./config')
 tree_utils <- import('./reconstruction/extract_data/tree-utils')
 interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
 evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
+stat_utils <- import('./reconstruction/reporting/stat-utils')
 plot_utils <- import('./reconstruction/reporting/plot-utils')
 
 interactions <- interaction_utils$extract_interactions_from_path(
@@ -73,6 +74,29 @@ evaluation_results <- lapply(
 )
 names(evaluation_results) <- names(clades)
 
-plot_utils$plot_results(evaluation_results, CONFIG$stats)
+stat_results <- lapply(
+  evaluation_results,
+  function (evaluation_results_for_clade) {
+    stat_results_for_clade <- stat_utils$run_stats(
+      evaluation_results_for_clade, 
+      CONFIG$stats
+    )
+    return(stat_results_for_clade)
+  }
+)
+
+# sapply f*cks up the ggplot structure
+plots <- lapply(
+  names(evaluation_results),
+  function (clade_name) {
+    evaluation_results_for_clade <- evaluation_results[[clade_name]]
+    stat_results_for_clade <- stat_results[[clade_name]]
+    plot <- plot_utils$plot_results(
+      clade_name,
+      evaluation_results_for_clade,
+      stat_results_for_clade
+    )
+  }
+)
 
 save.image()
