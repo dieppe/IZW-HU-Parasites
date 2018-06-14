@@ -67,7 +67,7 @@ save_plot <- Vectorize(
       '&steps=',
       evaluation_config$number_of_steps,
       '&times=',
-      evaluation_config$number_of_sampling_per_step,
+      evaluation_config$number_of_replications,
       plot_config$extension
     )
     ggplot$ggsave(
