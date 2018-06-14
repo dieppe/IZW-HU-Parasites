@@ -21,18 +21,53 @@ plot_results <- Vectorize(
       ggplot$geom_point(size = 0.1, color = "#ff967f") +
       ggplot$theme_bw() +
       ggplot$theme(
-        text=element_text(size=20, family = "Phosphate Inline"),
-        title = element_text(colour = alpha(colour = "#ff967f", 0.8)),
-        axis.text = element_text(size=10, family = "Optima", colour = alpha(colour = "#000000", 0.6)),
-        axis.title = element_text(size=14, family = "Optima", colour = alpha(colour = "#000000", 0.3)),
-        plot.background = element_rect(fill = alpha(colour = "#7fffd9", 0.3)),
-        panel.border = element_rect(color = alpha("#7fffd9", 0.3), size = 0.2),
-        panel.background = element_rect(fill = alpha(colour = "#ffffff", 0.8) , color = "white"),
-        panel.grid.major = element_line(color = alpha("#7fffd9", 0.4), size = 0.2),
-        panel.grid.minor = element_line(color = alpha("#7fffd9", 0.4), size = 0.2, linetype = "dashed")
+        text = ggplot$element_text(
+          size=20, 
+          family = "Phosphate Inline"
+        ),
+        title = ggplot$element_text(
+          colour = ggplot$alpha(colour = "#ff967f", 0.8)
+        ),
+        axis.text = ggplot$element_text(
+          size=10, 
+          family = "Optima", 
+          colour = ggplot$alpha(colour = "#000000", 0.6)
+        ),
+        axis.title = ggplot$element_text(
+          size=14, 
+          family = "Optima", 
+          colour = ggplot$alpha(colour = "#000000", 0.3)
+        ),
+        plot.background = ggplot$element_rect(
+          fill = ggplot$alpha(colour = "#7fffd9", 0.3)
+        ),
+        panel.border = ggplot$element_rect(
+          color = ggplot$alpha("#7fffd9", 0.3), 
+          size = 0.2
+        ),
+        panel.background = ggplot$element_rect(
+          fill = ggplot$alpha(colour = "#ffffff", 0.8), 
+          color = "white"
+        ),
+        panel.grid.major = ggplot$element_line(
+          color = ggplot$alpha("#7fffd9", 0.4),
+          size = 0.2
+        ),
+        panel.grid.minor = ggplot$element_line(
+          color = ggplot$alpha("#7fffd9", 0.4), 
+          size = 0.2, 
+          linetype = "dashed"
+        )
       ) +
-      ggplot$scale_x_continuous(name = "dropped", breaks = 90:100) +
-      ggplot$scale_y_continuous(name = "recall", breaks = 0:10 / 10, labels = 0:10 * 10) +
+      ggplot$scale_x_continuous(
+        name = "dropped", 
+        breaks = 90:100
+      ) +
+      ggplot$scale_y_continuous(
+        name = "recall", 
+        breaks = 0:10 / 10, 
+        labels = 0:10 * 10
+      ) +
       ggplot$geom_line(
         data = melted_stats[melted_stats$Var2 == "min",],
         ggplot$aes(
