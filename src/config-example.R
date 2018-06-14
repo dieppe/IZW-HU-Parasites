@@ -17,7 +17,7 @@ evaluations <- list(
   from_percentage_dropped = 90,
   to_percentage_dropped = 99.999,
   number_of_steps = 2,
-  number_of_sampling_per_step = 2
+  number_of_replications = 2
 )
 
 stats <- c(min = min, max = max, mean = mean, median = median, sd = sd)

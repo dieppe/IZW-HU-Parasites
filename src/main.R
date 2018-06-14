@@ -47,7 +47,7 @@ evaluation_results <- evaluation_utils$evaluate(
   clades,
   tip_states_by_clade,
   drops,
-  CONFIG$evaluations$number_of_sampling_per_step
+  CONFIG$evaluations$number_of_replications
 )
 
 stat_results <- stat_utils$run_stats(
@@ -77,7 +77,7 @@ save.image(
     CONFIG$evaluations$to_percentage_dropped,
     '&steps=',
     CONFIG$evaluations$number_of_steps,
-    '&times=',
-    CONFIG$evaluations$number_of_sampling_per_step
+    '&replications=',
+    CONFIG$evaluations$number_of_replications
   )
 )
