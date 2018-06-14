@@ -10,10 +10,11 @@ tryCatch(
     rstudioapi = import_package('rstudioapi')
     setwd(dirname(rstudioapi$getActiveDocumentContext()$path))
   },
-  error = function (cond) { print("Not working in R Studio, check the working directory") }
+  error = function (cond) { 
+    print("Not working in R Studio, check the working directory (should point to $PROJECT_ROOT/src/):")
+    getwd()
+  }
 )
-
-getwd()
 
 utils <- import('./utils')
 CONFIG <- import('./config')
