@@ -41,3 +41,5 @@ src/reconstruction/\.Rhistory
 src/config\.R
 
 output/
+
+src/\.Rhistory
