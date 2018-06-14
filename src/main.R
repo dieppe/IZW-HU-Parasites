@@ -32,9 +32,9 @@ tree <- tree_utils$read_tree_from_path(CONFIG$full_tree_path)
 clades <- tree_utils$extract_clades(tree, CONFIG$clade_otts)
 
 percentage_to_recall_sequence <- seq(
-  from=CONFIG$lower_percentage_to_recall, 
-  to=CONFIG$upper_percentage_to_recall, 
-  length.out=CONFIG$number_of_evaluations
+  from=CONFIG$evaluations$from_percentage_dropped, 
+  to=CONFIG$evaluations$to_percentage_dropped, 
+  length.out=CONFIG$evaluations$number_of_steps
 )
 
 evaluation_results <- lapply(
@@ -60,7 +60,7 @@ evaluation_results <- lapply(
           clade,
           mapped_states, 
           percentage_to_recall, 
-          CONFIG$number_of_sampling_per_recall
+          CONFIG$evaluations$number_of_sampling_per_step
         )
         print(evaluation_result)
         return(evaluation_result)
