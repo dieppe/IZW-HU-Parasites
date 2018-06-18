@@ -16,7 +16,6 @@ tryCatch(
   }
 )
 
-utils <- import('./utils')
 CONFIG <- import('./config')
 
 tree_utils <- import('./reconstruction/extract_data/tree-utils')
