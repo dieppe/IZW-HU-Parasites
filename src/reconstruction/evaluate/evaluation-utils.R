@@ -44,7 +44,7 @@ evaluate <- Vectorize(
             result <- analyse(clade, castor_result, tip_states, percentage_to_drop)
             return(result)   
           },
-          mc.cores = parallel$detectCores()
+          mc.cores = parallel$detectCores() / 2
         )
         result <- unlist(result)
         return(result)
