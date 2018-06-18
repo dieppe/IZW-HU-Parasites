@@ -61,11 +61,7 @@ plot_results <- Vectorize(
       ) +
       ggplot$scale_x_continuous(
         name = "dropped", 
-        breaks = seq(
-          round(drops[1]), 
-          round(drops[length(drops)]), 
-          length.out = 10
-        )
+        breaks = round(seq(drops[1], drops[length(drops)], length.out = 10), 1)
       ) +
       ggplot$scale_y_continuous(
         name = "recall", 
