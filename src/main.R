@@ -57,7 +57,8 @@ stat_results <- stat_utils$run_stats(
 plots <- plot_utils$plot_results(
   names(CONFIG$clade_otts), 
   evaluation_results, 
-  stat_results
+  stat_results,
+  drops
 )
 
 plot_utils$save_plot(

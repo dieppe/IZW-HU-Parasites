@@ -7,7 +7,7 @@ ggplot <- import_package('ggplot2')
 reshape <- import_package('reshape2')
 
 plot_results <- Vectorize(
-  function (clade_name, evaluation_results_for_clade, stat_results_for_clade) {
+  function (clade_name, evaluation_results_for_clade, stat_results_for_clade, drops) {
     melted_results <- reshape$melt(evaluation_results_for_clade)
     melted_stats <- reshape$melt(stat_results_for_clade)
   
@@ -61,7 +61,11 @@ plot_results <- Vectorize(
       ) +
       ggplot$scale_x_continuous(
         name = "dropped", 
-        breaks = 90:100
+        breaks = seq(
+          round(drops[1]), 
+          round(drops[length(drops)]), 
+          length.out = 10
+        )
       ) +
       ggplot$scale_y_continuous(
         name = "recall", 
@@ -87,6 +91,11 @@ plot_results <- Vectorize(
       ggplot$ggtitle(toupper(clade_name))
     return(plot)
   },
+  vectorize.args = c(
+    'clade_name', 
+    'evaluation_results_for_clade', 
+    'stat_results_for_clade'
+  ),
   SIMPLIFY = FALSE
 )
 
@@ -103,6 +112,8 @@ save_plot <- Vectorize(
       evaluation_config$number_of_steps,
       '&times=',
       evaluation_config$number_of_replications,
+      '&FtoP_transition_cost=',
+      evaluation_config$transition_costs[1,2],
       plot_config$extension
     )
     ggplot$ggsave(
