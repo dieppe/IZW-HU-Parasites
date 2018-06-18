@@ -26,8 +26,18 @@ evaluate <- Vectorize(
     number_of_known_tips <- length(tip_states[known_tips_indexes])
     
     evaluation_results <- sapply(
-      drops,
-      function (percentage_to_drop) {
+      seq_along(drops),
+      function (i) {
+        percentage_to_drop <- drops[[i]]
+        print(paste0(
+          'Evaluation #', 
+          i,
+          '/',
+          length(drops), 
+          ' (', 
+          percentage_to_drop, 
+          '% drop)'
+        ))
         number_of_tips_to_drop <- (
           number_of_known_tips * (percentage_to_drop / 100)
         )
