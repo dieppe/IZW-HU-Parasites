@@ -1,5 +1,6 @@
 library('modules')
 
+CONFIG <- import('../../config')
 utils <- import('../../utils')
 utils$install_packages('castor')
 castor <- import_package('castor')
@@ -10,7 +11,7 @@ run_exact <- function (tree, tip_states) {
     tree, 
     tip_states, 
     Nstates=2, 
-    transition_costs="all_equal", 
+    transition_costs=CONFIG$evaluations$transition_costs, 
     edge_exponent=0.0, 
     weight_by_scenarios=TRUE, 
     check_input=TRUE

@@ -77,6 +77,8 @@ save.image(
     '&steps=',
     CONFIG$evaluations$number_of_steps,
     '&replications=',
-    CONFIG$evaluations$number_of_replications
+    CONFIG$evaluations$number_of_replications,
+    '&FtoP_transition_cost=',
+    CONFIG$evaluations$transition_costs[1,2]
   )
 )
