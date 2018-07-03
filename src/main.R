@@ -17,12 +17,20 @@ tryCatch(
 )
 
 CONFIG <- import('./config')
-
 tree_utils <- import('./reconstruction/extract_data/tree-utils')
 interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
 evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
 stat_utils <- import('./reconstruction/reporting/stat-utils')
 plot_utils <- import('./reconstruction/reporting/plot-utils')
+
+reload_modules <- function () {
+  reload(CONFIG)
+  reload(tree_utils)
+  reload(interaction_utils)
+  reload(evaluation_utils)
+  reload(stat_utils)
+  reload(plot_utils)
+}
 
 interactions <- interaction_utils$extract_interactions_from_path(
   CONFIG$interaction_tree_path
