@@ -2,6 +2,7 @@ library('modules')
 
 CONFIG <- import('../../config')
 utils <- import('../../utils')
+tree_utils <- import('../extract_data/tree-utils')
 utils$install_packages('castor')
 castor <- import_package('castor')
 parallel <- import_package('parallel')
@@ -51,7 +52,19 @@ evaluate <- Vectorize(
             )
             tips_to_evaluate[known_tips_indexes][sampled_indices_to_drop] <- NA
             castor_result <- run_exact(clade, tips_to_evaluate)
-            result <- analyse(clade, castor_result, tip_states, percentage_to_drop)
+            result <- c(
+              percentage_recovered = analyse(
+                clade, 
+                castor_result$likelihoods, 
+                tip_states, 
+                percentage_to_drop
+              ),
+              number_of_state_changes = tree_utils$count_trait_changes(
+                clade,
+                castor_result$likelihoods
+              ),
+              state_counts = count_states(castor_result$likelihoods)
+            )
             return(result)   
           },
           mc.cores = parallel$detectCores() / 2
@@ -68,8 +81,8 @@ evaluate <- Vectorize(
   SIMPLIFY = FALSE
 )
 
-analyse <- function (clade, castor_result, tip_states, percentage_to_recall) {
-  liks <- castor_result$likelihoods
+analyse <- function (clade, likelihoods, tip_states, percentage_to_recall) {
+  liks <- likelihoods
   
   tip_liks <- liks[1:length(clade$tip.label), 1]
   known_tip_liks <- tip_liks[!is.na(tip_states)]
@@ -78,7 +91,7 @@ analyse <- function (clade, castor_result, tip_states, percentage_to_recall) {
   correct_states <-
     (known_states == 1 & known_tip_liks > 0.5) |
     (known_states == 2 & known_tip_liks < 0.5)
-  number_of_correct_states <- sum(correct_states, na.rm = TRUE)
+  number_of_correct_states <- sum(correct_states, na.rm=TRUE)
   number_of_know_states <- length(known_states)
   number_of_left_out <- as.integer(
       (as.double(percentage_to_recall) / 100) * number_of_know_states
@@ -90,4 +103,13 @@ analyse <- function (clade, castor_result, tip_states, percentage_to_recall) {
     number_of_left_out
 
   return(percentage_recovered)
+}
+
+count_states <- function (likelihoods) {
+  liks <- likelihoods
+  return(c(
+    number_of_freelivings = sum(liks[,1] > 0.5, na.rm=TRUE),
+    number_of_parasites = sum(liks[,1] < 0.5, na.rm=TRUE),
+    number_of_undecided = sum(liks[,1] == 0.5, na.rm=TRUE)
+  )) 
 }
