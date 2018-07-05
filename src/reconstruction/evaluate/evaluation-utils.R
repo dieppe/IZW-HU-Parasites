@@ -21,51 +21,45 @@ run_exact <- function (tree, tip_states) {
 }
 
 evaluate <- Vectorize(
-  function (clade, tip_states, drops, number_of_sampling_per_step) {
+  function (clade, tip_states) {
+    drops <- seq(
+      from=CONFIG$evaluations$from_percentage_dropped,  
+      to=CONFIG$evaluations$to_percentage_dropped,  
+      length.out=CONFIG$evaluations$number_of_steps
+    )
+    
+    number_of_replications <- CONFIG$evaluations$number_of_replications
+    
     # We leave out only known states
-    known_tips_indexes <- !is.na(tip_states)
-    number_of_known_tips <- length(tip_states[known_tips_indexes])
+    known_tips_selector <- !is.na(tip_states)
+    number_of_known_tip_states <- length(tip_states[known_tips_selector])
     
     evaluation_results <- sapply(
       seq_along(drops),
       function (i) {
-        percentage_to_drop <- drops[[i]]
-        print(paste0(
-          'Evaluation #', 
-          i,
-          '/',
-          length(drops), 
-          ' (', 
-          percentage_to_drop, 
-          '% drop)'
-        ))
-        number_of_tips_to_drop <- (
-          number_of_known_tips * (percentage_to_drop / 100)
-        )
+        drop <- drops[[i]]
+        print(paste0('Evaluation #', i, '/', length(drops), ' (', drop, '% drop)'))
+        
+        number_of_tip_states_to_drop <- 
+          number_of_known_tip_states * (drop / 100)
+        
         result <- parallel$mclapply(
-          1:number_of_sampling_per_step,
+          1:number_of_replications,
           function (...) {
-            tips_to_evaluate <- tip_states
-            sampled_indices_to_drop <- sample(
-              number_of_known_tips, 
-              number_of_tips_to_drop
+            kept_tip_states <- tip_states
+            indices_to_drop <- sample(
+              number_of_known_tip_states, 
+              number_of_tip_states_to_drop
             )
-            tips_to_evaluate[known_tips_indexes][sampled_indices_to_drop] <- NA
-            castor_result <- run_exact(clade, tips_to_evaluate)
-            result <- c(
-              percentage_recovered = analyse(
-                clade, 
-                castor_result$likelihoods, 
-                tip_states, 
-                percentage_to_drop
-              ),
-              number_of_state_changes = tree_utils$count_trait_changes(
-                clade,
-                castor_result$likelihoods
-              ),
-              state_counts = count_states(castor_result$likelihoods)
+            kept_tip_states[known_tips_selector][indices_to_drop] <- NA
+            castor_result <- run_exact(clade, kept_tip_states)
+            analysis <- analyse_run(
+              clade, 
+              tip_states, 
+              drop, 
+              castor_result$likelihoods
             )
-            return(result)   
+            return(analysis)   
           },
           mc.cores = parallel$detectCores() / 2
         )
@@ -77,39 +71,55 @@ evaluate <- Vectorize(
     
     return(evaluation_results)
   },
-  vectorize.args = c('clade', 'tip_states'),
   SIMPLIFY = FALSE
 )
 
-analyse <- function (clade, likelihoods, tip_states, percentage_to_recall) {
-  liks <- likelihoods
-  
-  tip_liks <- liks[1:length(clade$tip.label), 1]
-  known_tip_liks <- tip_liks[!is.na(tip_states)]
-  known_states <- tip_states[!is.na(tip_states)]
-  
-  correct_states <-
-    (known_states == 1 & known_tip_liks > 0.5) |
-    (known_states == 2 & known_tip_liks < 0.5)
-  number_of_correct_states <- sum(correct_states, na.rm=TRUE)
-  number_of_know_states <- length(known_states)
-  number_of_left_out <- as.integer(
-      (as.double(percentage_to_recall) / 100) * number_of_know_states
-  )
-  number_of_kept <- number_of_know_states - number_of_left_out
-
-  percentage_recovered <-
-    (number_of_correct_states - number_of_kept) /
-    number_of_left_out
-
-  return(percentage_recovered)
+analyse_run <- function (clade, tip_states, drop, results) {
+  return(c(
+    recall = get_recall(clade, tip_states, drop, results),
+    state_counts = count_states(results),
+    number_of_state_changes = tree_utils$count_trait_changes(clade, results)
+  ))
 }
 
-count_states <- function (likelihoods) {
-  liks <- likelihoods
+get_recall <- function (clade, tip_states, drop, results) {
+  results_for_tips <- results[1:length(clade$tip.label), 1]
+  
+  # If a tip_state is not NA, then it means we knew if the tip was a FL|P
+  known_tip_states_selector <- !is.na(tip_states)
+  
+  # Select reconstructed states for the tips with known states
+  results_for_known_tips <- results_for_tips[known_tip_states_selector]
+  # Select the known states
+  known_tip_states <- tip_states[known_tip_states_selector]
+  
+  # Compare known and reconstructed states
+  number_of_matching_states <- sum(
+    (known_tip_states == 1 & results_for_known_tips > 0.5) |
+    (known_tip_states == 2 & results_for_known_tips < 0.5),
+    na.rm = TRUE
+  )
+  number_of_known_states <- length(known_tip_states)
+  
+  number_of_states_to_reconstruct <- as.integer(
+    (as.double(drop) / 100) * number_of_known_states
+  )
+  number_of_states_kept <- 
+    number_of_known_states - number_of_states_to_reconstruct
+
+  number_of_correctly_reconstructed_states <- 
+    number_of_matching_states - number_of_states_kept
+  
+  recall <- 
+    number_of_correctly_reconstructed_states / number_of_states_to_reconstruct
+
+  return(recall)
+}
+
+count_states <- function (results) {
   return(c(
-    number_of_freelivings = sum(liks[,1] > 0.5, na.rm=TRUE),
-    number_of_parasites = sum(liks[,1] < 0.5, na.rm=TRUE),
-    number_of_undecided = sum(liks[,1] == 0.5, na.rm=TRUE)
+    number_of_freelivings = sum(results[, 1] > 0.5, na.rm=TRUE),
+    number_of_parasites = sum(results[, 1] < 0.5, na.rm=TRUE),
+    number_of_undecided = sum(results[, 1] == 0.5, na.rm=TRUE)
   )) 
 }

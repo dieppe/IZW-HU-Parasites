@@ -1,5 +1,6 @@
 library('modules')
 
+CONFIG <- import('../../config')
 utils <- import('../../utils')
 
 utils$install_packages(c('ggplot2', 'reshape2'))
@@ -96,7 +97,7 @@ plot_results <- Vectorize(
 )
 
 save_plot <- Vectorize(
-  function (plot, clade_name, evaluation_config, plot_config) {
+  function (plot, clade_name, evaluation_config = CONFIG$evaluations, plot_config = CONFIG$plots) {
     path = plot_config$output_path
     filename <- paste0(
       clade_name, 

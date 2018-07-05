@@ -1,9 +1,11 @@
 library("modules")
 
+CONFIG <- import('../../config')
+
 run_stats <- Vectorize(
-  function (evaluation_results_for_clade, stats) {
+  function (evaluation_results_for_clade) {
     stats_results <- sapply(
-      stats,
+      CONFIG$stats,
       function (stat) {
         apply(evaluation_results_for_clade, 2, stat)
       }

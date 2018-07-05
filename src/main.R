@@ -32,49 +32,28 @@ reload_modules <- function () {
   reload(plot_utils)
 }
 
-interactions <- interaction_utils$extract_interactions_from_path(
-  CONFIG$interaction_tree_path
-)
+interactions <- interaction_utils$extract_interactions()
 
-tree <- tree_utils$read_tree_from_path(CONFIG$full_tree_path)
-clades <- tree_utils$extract_clades(tree, CONFIG$clade_otts)
+tree <- tree_utils$read_tree()
+clades <- tree_utils$extract_clades(tree)
 tip_states_by_clade <- tree_utils$build_tip_states_for_clade(
   clades,
   interactions$parasites,
   interactions$freelivings
 )
 
-drops <- seq(
-  from=CONFIG$evaluations$from_percentage_dropped,  
-  to=CONFIG$evaluations$to_percentage_dropped,  
-  length.out=CONFIG$evaluations$number_of_steps
-)
+evaluation_results <- evaluation_utils$evaluate(clades, tip_states_by_clade)
 
-evaluation_results <- evaluation_utils$evaluate(
-  clades,
-  tip_states_by_clade,
-  drops,
-  CONFIG$evaluations$number_of_replications
-)
-
-stat_results <- stat_utils$run_stats(
-  evaluation_results, 
-  CONFIG$stats
-)
+stat_results <- stat_utils$run_stats(evaluation_results)
 
 plots <- plot_utils$plot_results(
-  names(CONFIG$clade_otts), 
-  evaluation_results, 
+  names(CONFIG$clade_otts),
+  evaluation_results,
   stat_results,
   drops
 )
 
-plot_utils$save_plot(
-  plots,
-  names(plots),
-  CONFIG$evaluations,
-  CONFIG$plots
-)
+plot_utils$save_plot(plots, names(plots))
 
 save.image(
   file = paste0(

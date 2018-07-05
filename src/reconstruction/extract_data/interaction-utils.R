@@ -1,5 +1,7 @@
 library('modules')
 
+CONFIG <- import('../../config')
+
 utils <- import('../../utils')
 utils$install_packages('readr')
 
@@ -28,17 +30,17 @@ FREELIVING_TARGET <- c(
   'preyedUponBy', 'parasiteOf', 'visitsFlowersOf', 'pathogenOf', 'hasHost'
 )
 
-extract_interactions_from_path <- function (otl_interactions_path) {
-  interactions <- import_from_feather_file(otl_interactions_path)
+extract_interactions <- function () {
+  path <- CONFIG$interaction_tree_path
+  interactions <- import_from_feather_file(path)
   if (is.null(interactions)) {
-    print(paste('IMPORTING INTERACTIONS FROM ', otl_interactions_path))
+    print(paste('IMPORTING INTERACTIONS FROM ', path))
     interactions <- readr$read_tsv(
-      otl_interactions_path,
+      path,
       col_names = TSV_COLUMNS
     )
-    cache_to_feather_file(interactions, otl_interactions_path)
+    cache_to_feather_file(interactions, path)
   }
-  # return(interactions)
   filtered_interactions <- filter_interactions(interactions)
   # # TODO cache these in a feather file
   return(filtered_interactions)
