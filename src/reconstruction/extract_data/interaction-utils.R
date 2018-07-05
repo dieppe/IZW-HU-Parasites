@@ -35,6 +35,7 @@ extract_interactions <- function () {
   interactions <- import_from_feather_file(path)
   if (is.null(interactions)) {
     print(paste('IMPORTING INTERACTIONS FROM ', path))
+    print('This is a good time to grab a coffee')
     interactions <- readr$read_tsv(
       path,
       col_names = TSV_COLUMNS
@@ -59,8 +60,8 @@ cache_to_feather_file <- function (dataFrame, tsvPath) {
 }
 
 import_from_feather_file <- function (tsvPath) {
-  print('IMPORTING INTERACTIONS FROM FEATHER FILE...')
   featherPath <- get_feather_path_from_tsv_path(tsvPath)
+  print(paste('IMPORTING INTERACTIONS FROM FEATHER FILE', featherPath))
   if (file.exists(featherPath)) {
     return(feather$read_feather(featherPath))
   }

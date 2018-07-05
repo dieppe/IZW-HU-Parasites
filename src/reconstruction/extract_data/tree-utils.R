@@ -21,10 +21,13 @@ read_tree <- function () {
 }
 
 extract_clades <- function (tree) {
+  clade_otts <- CONFIG$clade_otts
   clades <- lapply(
-    CONFIG$clade_otts,
-    function (clade_ott) {
-      print(paste('EXTRACTING CLADE', clade_ott))
+    seq_along(clade_otts),
+    function (clade_ott_index) {
+      clade_name <- names(clade_otts)[clade_ott_index]
+      clade_ott <- clade_otts[clade_ott_index]
+      print(paste0('EXTRACTING CLADE ', clade_name, ' (', clade_ott, ')'))
       clade <- castor$get_subtree_at_node(tree, node = clade_ott)
       return(clade$subtree)
     }

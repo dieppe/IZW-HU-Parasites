@@ -17,30 +17,24 @@ tryCatch(
 )
 
 CONFIG <- import('./config')
-tree_utils <- import('./reconstruction/extract_data/tree-utils')
-interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
+prepare_run <- import('./reconstruction/prepare-run')
+# prepare_run <- import('./simulation/prepare-run')
 evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
 stat_utils <- import('./reconstruction/reporting/stat-utils')
 plot_utils <- import('./reconstruction/reporting/plot-utils')
 
 reload_modules <- function () {
   reload(CONFIG)
-  reload(tree_utils)
-  reload(interaction_utils)
+  reload(prepare_run)
   reload(evaluation_utils)
   reload(stat_utils)
   reload(plot_utils)
 }
 
-interactions <- interaction_utils$extract_interactions()
-
-tree <- tree_utils$read_tree()
-clades <- tree_utils$extract_clades(tree)
-tip_states_by_clade <- tree_utils$build_tip_states_for_clade(
-  clades,
-  interactions$parasites,
-  interactions$freelivings
-)
+prepared <- prepare_run$prepare()
+run <- prepare_run$get_run(prepared)
+clades <- run$clades
+tip_states_by_clade <- run$tip_states_by_clade
 
 evaluation_results <- evaluation_utils$evaluate(clades, tip_states_by_clade)
 
