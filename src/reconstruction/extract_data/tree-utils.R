@@ -109,12 +109,12 @@ count_trait_changes <- function (tree, states) {
   edges <- traversal$edges
   node2first_edge <- traversal$node2first_edge
   node2last_edge <- traversal$node2last_edge
-
   for (n in 1:length(node2first_edge)) {
-    edge_indices <- edges[node2first_edge[n]:node2last_edge[n]]
-    # This seems a bit iffy... is there a cleaner way to do it?
-    parent <- tree$edge[edge_indices, 1][1]
-    children <- tree$edge[edge_indices, 2]
+    edge_row_indices <- edges[node2first_edge[n]:node2last_edge[n]]
+    edge <- tree$edge[edge_row_indices, , drop=FALSE]
+    # We are guaranteed that first column is the parent id repeated for all rows
+    parent <- edge[, 1][1] # if (edge_row_indices == c()) then edge[1, 1] throws
+    children <- edge[, 2]
     parent_state <- states[parent]
     children_states <- states[children]
     if (parent_state >= 0.5 & any(children_states < 0.5, na.rm=TRUE)) {
