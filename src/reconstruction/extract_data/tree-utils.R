@@ -126,7 +126,7 @@ count_trait_changes <- function (tree, states) {
       number_of_losses = number_of_losses + 1
     }
   }
-  return(c(
+  return(list(
     state_of_root_node = states[traversal$queue[1]],
     number_of_losses = number_of_losses,
     number_of_origins = number_of_origins

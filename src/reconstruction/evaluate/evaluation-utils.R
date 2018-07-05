@@ -28,23 +28,21 @@ evaluate <- Vectorize(
       length.out=CONFIG$evaluations$number_of_steps
     )
     
-    number_of_replications <- CONFIG$evaluations$number_of_replications
+    replication_sequence <- 1:(CONFIG$evaluations$number_of_replications)
     
     # We leave out only known states
     known_tips_selector <- !is.na(tip_states)
     number_of_known_tip_states <- length(tip_states[known_tips_selector])
     
-    evaluation_results <- sapply(
-      seq_along(drops),
-      function (i) {
-        drop <- drops[[i]]
-        print(paste0('Evaluation #', i, '/', length(drops), ' (', drop, '% drop)'))
-        
+    evaluation_results <- lapply(
+      drops,
+      function (drop) {
+        print(paste0('Evaluation with ', drop, '% drop'))
         number_of_tip_states_to_drop <- 
           number_of_known_tip_states * (drop / 100)
         
         result <- parallel$mclapply(
-          1:number_of_replications,
+          replication_sequence,
           function (...) {
             kept_tip_states <- tip_states
             indices_to_drop <- sample(
@@ -59,15 +57,15 @@ evaluate <- Vectorize(
               drop, 
               castor_result$likelihoods
             )
-            return(analysis)   
+            return(analysis)
           },
           mc.cores = parallel$detectCores() / 2
         )
-        result <- unlist(result)
+        names(result) <- replication_sequence
         return(result)
       }
     )
-    dimnames(evaluation_results)[[2]] <- drops
+    names(evaluation_results) <- drops
     
     return(evaluation_results)
   },
@@ -75,7 +73,7 @@ evaluate <- Vectorize(
 )
 
 analyse_run <- function (clade, tip_states, drop, results) {
-  return(c(
+  return(list(
     recall = get_recall(clade, tip_states, drop, results),
     state_counts = count_states(results),
     number_of_state_changes = tree_utils$count_trait_changes(clade, results)
@@ -117,7 +115,7 @@ get_recall <- function (clade, tip_states, drop, results) {
 }
 
 count_states <- function (results) {
-  return(c(
+  return(list(
     number_of_freelivings = sum(results[, 1] > 0.5, na.rm=TRUE),
     number_of_parasites = sum(results[, 1] < 0.5, na.rm=TRUE),
     number_of_undecided = sum(results[, 1] == 0.5, na.rm=TRUE)
