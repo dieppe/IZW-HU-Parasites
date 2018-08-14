@@ -1,8 +1,8 @@
 library('modules')
 
-CONFIG <- import('../../config')
+CONFIG <- import('../common/config')
+utils <- import('../common/utils')
 
-utils <- import('../../utils')
 utils$install_packages('readr')
 
 readr <- import_package('readr')

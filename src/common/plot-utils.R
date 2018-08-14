@@ -1,7 +1,7 @@
 library('modules')
 
-CONFIG <- import('../../config')
-utils <- import('../../utils')
+CONFIG <- import('./config')
+utils <- import('./utils')
 
 utils$install_packages(c('ggplot2', 'reshape2'))
 ggplot <- import_package('ggplot2')

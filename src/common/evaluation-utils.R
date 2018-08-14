@@ -1,8 +1,8 @@
 library('modules')
 
-CONFIG <- import('../../config')
-utils <- import('../../utils')
-tree_utils <- import('../extract_data/tree-utils')
+CONFIG <- import('./config')
+utils <- import('./utils')
+tree_utils <- import('./tree-utils')
 utils$install_packages('castor')
 castor <- import_package('castor')
 parallel <- import_package('parallel')

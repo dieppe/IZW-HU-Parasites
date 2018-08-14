@@ -7,8 +7,8 @@
 
 library('modules')
 
-CONFIG <- import('../../config')
-utils <- import('../../utils')
+CONFIG <- import('./config')
+utils <- import('./utils')
 utils$install_packages('castor')
 
 castor <- import_package('castor')

@@ -1,6 +1,6 @@
 library("modules")
 
-CONFIG <- import('../../config')
+CONFIG <- import('./config')
 
 run_stats <- Vectorize(
   function (evaluation_results_for_clade) {

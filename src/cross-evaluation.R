@@ -15,12 +15,12 @@ tryCatch(
   }
 )
 
-CONFIG <- import('./config')
-tree_utils <- import('./reconstruction/extract_data/tree-utils')
-interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
-evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
-stat_utils <- import('./reconstruction/reporting/stat-utils')
-plot_utils <- import('./reconstruction/reporting/plot-utils')
+CONFIG <- import('./common/config')
+tree_utils <- import('./common/tree-utils')
+interaction_utils <- import('./cross-evaluation/interaction-utils')
+evaluation_utils <- import('./common/evaluation-utils')
+stat_utils <- import('./common/stat-utils')
+plot_utils <- import('./common/plot-utils')
 
 reload_modules <- function () {
   reload(CONFIG)
