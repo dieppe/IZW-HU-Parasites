@@ -6,35 +6,40 @@ library('modules')
 
 tryCatch(
   {
-    # TODO if rstudioapi is not present, try the other way...
     rstudioapi = import_package('rstudioapi')
     setwd(dirname(rstudioapi$getActiveDocumentContext()$path))
   },
-  error = function (cond) { 
+  error = function (cond) {
     print("Not working in R Studio, check the working directory (should point to $PROJECT_ROOT/src/):")
     getwd()
   }
 )
 
 CONFIG <- import('./config')
-prepare_run <- import('./reconstruction/prepare-run')
-# prepare_run <- import('./simulation/prepare-run')
+tree_utils <- import('./reconstruction/extract_data/tree-utils')
+interaction_utils <- import('./reconstruction/extract_data/interaction-utils')
 evaluation_utils <- import('./reconstruction/evaluate/evaluation-utils')
 stat_utils <- import('./reconstruction/reporting/stat-utils')
 plot_utils <- import('./reconstruction/reporting/plot-utils')
 
 reload_modules <- function () {
   reload(CONFIG)
-  reload(prepare_run)
+  reload(tree_utils)
+  reload(interaction_utils)
   reload(evaluation_utils)
   reload(stat_utils)
   reload(plot_utils)
 }
 
-prepared <- prepare_run$prepare()
-run <- prepare_run$get_run(prepared)
-clades <- run$clades
-tip_states_by_clade <- run$tip_states_by_clade
+interactions <- interaction_utils$extract_interactions()
+tree <- tree_utils$read_tree()
+
+clades <- tree_utils$extract_clades(tree)
+tip_states_by_clade <- tree_utils$build_tip_states_for_clade(
+  clades,
+  interactions$parasites,
+  interactions$freelivings
+)
 
 evaluation_results <- evaluation_utils$evaluate(clades, tip_states_by_clade)
 

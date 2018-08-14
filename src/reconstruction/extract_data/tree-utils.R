@@ -32,6 +32,7 @@ extract_clades <- function (tree) {
       return(clade$subtree)
     }
   )
+  names(clades) <- names(clade_otts)
   return(clades)
 }
 
@@ -114,6 +115,9 @@ count_trait_changes <- function (tree, states) {
   node2last_edge <- traversal$node2last_edge
   for (n in 1:length(node2first_edge)) {
     edge_row_indices <- edges[node2first_edge[n]:node2last_edge[n]]
+    if (length(edge_row_indices) == 0) {
+      next
+    }
     edge <- tree$edge[edge_row_indices, , drop=FALSE]
     # We are guaranteed that first column is the parent id repeated for all rows
     parent <- edge[, 1][1] # if (edge_row_indices == c()) then edge[1, 1] throws
