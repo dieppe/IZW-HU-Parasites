@@ -18,7 +18,7 @@ tryCatch(
 CONFIG <- import('./common/config')
 utils <- import('./common/utils')
 tree_utils <- import('./common/tree-utils')
-interaction_utils <- import('./cross-evaluation/interaction-utils')
+simulation_utils <- import('./simulation/simulation-utils')
 evaluation_utils <- import('./common/evaluation-utils')
 stat_utils <- import('./common/stat-utils')
 plot_utils <- import('./common/plot-utils')
@@ -27,22 +27,24 @@ reload_modules <- function () {
   reload(CONFIG)
   reload(utils)
   reload(tree_utils)
-  reload(interaction_utils)
+  reload(simulation_utils)
   reload(evaluation_utils)
   reload(stat_utils)
   reload(plot_utils)
 }
 
-interactions <- interaction_utils$extract_interactions()
 tree <- tree_utils$read_tree()
-
 clades <- tree_utils$extract_clades(tree)
-tip_states_by_clade <- tree_utils$build_tip_states_for_clade(
-  clades,
-  interactions$parasites,
-  interactions$freelivings
+
+simulated_clades <- simulation_utils$generate_trees_for_clades(clades)
+simulated_states <- simulation_utils$generate_states_for_clades(
+  clades, 
+  simulated_clades
 )
 
-evaluation_results <- evaluation_utils$evaluate(clades, tip_states_by_clade)
+evaluation_results <- evaluation_utils$evaluate(
+  simulated_clades, 
+  simulated_states$tip_states
+)
 
-utils$export_data('evaluation')
+utils$export_data('simulation')

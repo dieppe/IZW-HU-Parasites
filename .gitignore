@@ -43,3 +43,5 @@ src/config\.R
 output/
 
 src/\.Rhistory
+
+src/common/config\.R

@@ -7,7 +7,21 @@ run_stats <- Vectorize(
     stats_results <- sapply(
       CONFIG$stats,
       function (stat) {
-        apply(evaluation_results_for_clade, 2, stat)
+        return(
+          lapply(
+            evaluation_results_for_clade,
+            function (dropped) {
+              return(
+                lapply(
+                  dropped,
+                  function (run_results) {
+                    return(stat(run_results$recall))
+                  }
+                )
+              )
+            }
+          )
+        )
       }
     )
     return(stats_results)

@@ -139,3 +139,32 @@ count_trait_changes <- function (tree, states) {
     number_of_origins = number_of_origins
   ))
 }
+
+get_multifurcation_data <- function (tree) {
+  traversal <- castor$get_tree_traversal_root_to_tips(
+    tree,
+    include_tips = FALSE
+  )
+  
+  data <- data.frame(level = numeric(0), node_count = numeric(0))
+  
+  edges <- traversal$edges
+  node2first_edge <- traversal$node2first_edge
+  node2last_edge <- traversal$node2last_edge
+  for (n in 1:length(node2first_edge)) {
+    edge_row_indices <- edges[node2first_edge[n]:node2last_edge[n]]
+    multifurcation_level <- length(edge_row_indices) - 2
+    row <- data[data$level == multifurcation_level]
+    if (length(row) == 0) {
+      data[nrow(data) + 1, ] <- list(multifurcation_level, 0)
+    }
+    else {
+      data[data$level == multifurcation_level] <- list(
+        row$level,
+        row$node_count + 1
+      )
+    }
+  }
+  
+  return(data)
+}
