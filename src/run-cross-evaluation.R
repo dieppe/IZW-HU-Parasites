@@ -20,8 +20,6 @@ utils <- import('./common/utils')
 tree_utils <- import('./common/tree-utils')
 interaction_utils <- import('./cross-evaluation/interaction-utils')
 evaluation_utils <- import('./common/evaluation-utils')
-stat_utils <- import('./common/stat-utils')
-plot_utils <- import('./common/plot-utils')
 
 reload_modules <- function () {
   reload(CONFIG)
@@ -29,8 +27,6 @@ reload_modules <- function () {
   reload(tree_utils)
   reload(interaction_utils)
   reload(evaluation_utils)
-  reload(stat_utils)
-  reload(plot_utils)
 }
 
 interactions <- interaction_utils$extract_interactions()

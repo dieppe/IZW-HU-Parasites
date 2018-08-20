@@ -21,7 +21,7 @@ export_data <- function (base_name) {
       CONFIG$output_path,
       '/.',
       base_name,
-      'from=',
+      '?from=',
       CONFIG$evaluations$from_percentage_dropped,
       '&to=',
       CONFIG$evaluations$to_percentage_dropped,
