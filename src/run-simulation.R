@@ -32,13 +32,26 @@ reload_modules <- function () {
 tree <- tree_utils$read_tree()
 clades <- tree_utils$extract_clades(tree)
 
-simulated_clades <- simulation_utils$generate_trees_for_clades(clades)
-utils$export_data('simulation-part1')
-simulated_states <- simulation_utils$generate_states_for_clades(
+lapply(
   clades, 
-  simulated_clades
+  function (clade) {
+    tree_model <- simulation_utils$fit_tree_model(clade)
+    # multifurcation_model <- fit_multifurcation_model(clade)
+    simulated_tree <- simulation_utils$simulate_tree_with_model(
+      tree_model, 
+      1000 # Simulation is highly memory intensive
+    )
+    return(list(model = tree_model, tree = simulated_tree))
+  }
 )
-utils$export_data('simulation-part2')
+
+utils$export_data('simulation-part1')
+
+# simulated_states <- simulation_utils$generate_states_for_clades(
+#   clades, 
+#   simulated_clades
+# )
+# utils$export_data('simulation-part2')
 
 # evaluation_results <- evaluation_utils$evaluate(
 #   simulated_clades, 
