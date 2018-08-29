@@ -47,6 +47,7 @@ lapply(
 
 utils$export_data('simulation-part1')
 
+# TODO this needs the known states! (change needed in simulation-utils too...)
 # simulated_states <- simulation_utils$generate_states_for_clades(
 #   clades, 
 #   simulated_clades
